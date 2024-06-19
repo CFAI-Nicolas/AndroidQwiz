@@ -3,6 +3,7 @@ package com.example.lheureduqwizzz
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.widget.RadioButton
@@ -13,13 +14,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.lheureduqwizzz.data.Question
 import com.example.lheureduqwizzz.data.QuizDatabase
-import com.example.lheureduqwizzz.data.Score
 import kotlinx.coroutines.launch
 
 class QuizActivity : AppCompatActivity() {
 
     private lateinit var tvQuestion: TextView
     private lateinit var tvQuestionCount: TextView
+    private lateinit var tvTimer: TextView
     private lateinit var rgOptions: RadioGroup
     private lateinit var rbOption1: RadioButton
     private lateinit var rbOption2: RadioButton
@@ -29,6 +30,10 @@ class QuizActivity : AppCompatActivity() {
     private lateinit var questionList: MutableList<Question>
     private var currentQuestion: Question? = null
     private var questionCount: Int = 0
+    private var score: Int = 0
+
+    private lateinit var countDownTimer: CountDownTimer
+    private val timerDuration: Long = 30000 // 30 seconds
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +41,7 @@ class QuizActivity : AppCompatActivity() {
 
         tvQuestion = findViewById(R.id.tvQuestion)
         tvQuestionCount = findViewById(R.id.tvQuestionCount)
+        tvTimer = findViewById(R.id.tvTimer)
         rgOptions = findViewById(R.id.rgOptions)
         rbOption1 = findViewById(R.id.rbOption1)
         rbOption2 = findViewById(R.id.rbOption2)
@@ -74,38 +80,55 @@ class QuizActivity : AppCompatActivity() {
                 rbOption4.text = question.option4
 
                 questionCount++
-                val questionCountText = "Question $questionCount"
+                val questionCountText = "Tu es a la question $questionCount"
                 tvQuestionCount.text = questionCountText
 
                 rgOptions.clearCheck()
                 resetOptionColors()
+
+                startTimer()
             }
         } else {
             loadQuestions()
         }
     }
 
-    private fun validateAnswer(selectedOption: Int, selectedRadioButton: RadioButton) {
-        currentQuestion?.let { question ->
-            val isCorrect = selectedOption == question.answerNr
-            selectedRadioButton.setTextColor(if (isCorrect) Color.GREEN else Color.RED)
+    private fun startTimer() {
+        countDownTimer = object : CountDownTimer(timerDuration, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                val secondsLeft = millisUntilFinished / 1000
+                tvTimer.text = secondsLeft.toString()
+            }
 
-            if (isCorrect) {
-                Toast.makeText(this@QuizActivity, "Bonne réponse !", Toast.LENGTH_SHORT).show()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    showNextQuestion()
-                }, 1000) // 1 seconde de pause avant de passer à la question suivante
+            override fun onFinish() {
+                tvTimer.text = "0"
+                onTimeUp()
+            }
+        }.start()
+    }
+
+    private fun onTimeUp() {
+        Toast.makeText(this, "Time's up!", Toast.LENGTH_SHORT).show()
+        navigateToGameOver()
+    }
+
+    private fun validateAnswer(answerNr: Int, selectedOption: RadioButton) {
+        countDownTimer.cancel()
+
+        currentQuestion?.let { question ->
+            if (answerNr == question.answerNr) {
+                score++
+                selectedOption.setTextColor(Color.GREEN)
             } else {
-                saveScore()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    val intent = Intent(this@QuizActivity, GameOverActivity::class.java)
-                    intent.putExtra("FINAL_SCORE", questionCount)
-                    intent.putExtra("PLAYER_NAME", title.toString().split(": ")[1])
-                    startActivity(intent)
-                    finish()
-                }, 1000) // 1 seconde de pause avant de retourner au menu
+                selectedOption.setTextColor(Color.RED)
+                navigateToGameOver()
+                return
             }
         }
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            showNextQuestion()
+        }, 2000)
     }
 
     private fun resetOptionColors() {
@@ -115,14 +138,11 @@ class QuizActivity : AppCompatActivity() {
         rbOption4.setTextColor(Color.BLACK)
     }
 
-    private fun saveScore() {
-        val database = QuizDatabase.getDatabase(this)
-        val scoreDao = database.scoreDao()
-        val playerName = title.toString().split(": ")[1]
-        val score = Score(playerName, questionCount)
-
-        lifecycleScope.launch {
-            scoreDao.insert(score)
-        }
+    private fun navigateToGameOver() {
+        val intent = Intent(this, GameOverActivity::class.java)
+        intent.putExtra("FINAL_SCORE", score)
+        intent.putExtra("PLAYER_NAME", title)
+        startActivity(intent)
+        finish()
     }
 }

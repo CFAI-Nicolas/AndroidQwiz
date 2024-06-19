@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -6,56 +5,65 @@
     tools:context=".QuizActivity">
 
     <TextView
-        android:id="@+id/tvQuestionCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Question 0/0"
-        android:textSize="16sp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="16dp"
-        android:layout_centerHorizontal="true"/>
-
-    <TextView
         android:id="@+id/tvQuestion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Question"
-        android:textSize="20sp"
+        android:textSize="24sp"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/tvQuestionCount"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="50dp"/>
+
+    <TextView
+        android:id="@+id/tvTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="30"
+        android:textSize="24sp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textColor="@android:color/holo_red_dark"/>
 
     <RadioGroup
         android:id="@+id/rgOptions"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/tvQuestion"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp">
 
         <RadioButton
             android:id="@+id/rbOption1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Option 1"/>
+            android:layout_marginTop="16dp" />
 
         <RadioButton
             android:id="@+id/rbOption2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Option 2"/>
+            android:layout_marginTop="16dp" />
 
         <RadioButton
             android:id="@+id/rbOption3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Option 3"/>
+            android:layout_marginTop="16dp" />
 
         <RadioButton
             android:id="@+id/rbOption4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Option 4"/>
+            android:layout_marginTop="16dp" />
     </RadioGroup>
+
+    <TextView
+        android:id="@+id/tvQuestionCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Question Count"
+        android:layout_below="@id/rgOptions"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>
